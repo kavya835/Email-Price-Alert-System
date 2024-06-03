@@ -40,7 +40,7 @@ def get_response(url):
 
 def get_price(html):
     soup = BeautifulSoup(html, "lxml")  #creating a BeautifulSoup object using the HTML response
-    el = soup.select_one(".price_color")    #'price_color' is the class of the HTML element #the . in front of it is used to select the elements of this class in the CSS
+    el = soup.select_one(".product-sales-price")    #'price_color' is the class of the HTML element #the . in front of it is used to select the elements of this class in the CSS
     price = Price.fromstring(el.text)   #el.text contains the price and currency symbol which needs to be removed
     return price.amount_float
 
