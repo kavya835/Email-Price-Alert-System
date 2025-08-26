@@ -1,7 +1,6 @@
 from playwright.sync_api import sync_playwright
 import smtplib                      #sending emails
 import pandas as pd                 #filtering, reading and writing data
-import requests                     #sending HTTP requests
 from bs4 import BeautifulSoup       #querying HTML for elements
 from price_parser import Price      #extracting the price
                                     #lxml for parsing HTML
