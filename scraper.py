@@ -1,20 +1,22 @@
 from playwright.sync_api import sync_playwright
-import smtplib                      #sending emails
 import pandas as pd                 #filtering, reading and writing data
 from bs4 import BeautifulSoup       #querying HTML for elements
 from price_parser import Price      #extracting the price
-                                    #lxml for parsing HTML
+from twilio.rest import Client
 
 
 PRODUCT_URL_CSV = "products.csv"
-SAVE_TO_CSV = True      #fetch prices
+SAVE_TO_CSV = False      #fetch prices
 PRICES_CSV = "prices.csv"
-SEND_MAIL = True
+SEND_TEXT = True
 
-MAIL_USER = "user@gmail.com"
-MAIL_PASS = "password"
+# Twilio setup
+ACCOUNT_SID = ""
+AUTH_TOKEN = ""
+TWILIO_NUMBER = ""
+MY_PHONE_NUMBER = ""
 
-MAIL_TO = "receiver@gmail.com"
+client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 
 def get_urls(csv_file):
@@ -62,42 +64,33 @@ def get_price(html):
     return price.amount_float
 
 
-
-
-## email alerts
-def get_mail(df):
-    subject = "Price Drop Alert"
+def send_text(df, TWILIO_NUMBER, MY_PHONE_NUMBER):
     data = df[df["alert"]]
     if data.empty:
         return
     
-    body = ""
+    message = "NOW ON SALE!"
 
     
     for index, row in data.iterrows():
-        body += "\n"
-        body += (row["product"] +": " + str(row["price"]))
-    
-    
-    subject_and_message = f"Subject:{subject}\n\n{body}"
-    return subject_and_message
+        message += "\n"
+        message += (row["product"] +": " + str(row["price"]))
 
-def send_mail(df, mail_user, mail_pass, mail_to):
-    message_text = get_mail(df)
-    if message_text == None:
-        return
-    with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
-        smtp.starttls()
-        smtp.login(mail_user, mail_pass)
-        smtp.sendmail(mail_user, mail_to, message_text)
+    
+    client.messages.create(
+        body=message,
+        from_=TWILIO_NUMBER,
+        to=MY_PHONE_NUMBER
+    )
+
 
 def main():
     df = get_urls(PRODUCT_URL_CSV)
     df_updated = process_products(df)
     if SAVE_TO_CSV:
         df_updated.to_csv(PRICES_CSV, index=False, mode="w")
-    if SEND_MAIL:
-        send_mail(df_updated, MAIL_USER, MAIL_PASS, MAIL_TO)
+    if SEND_TEXT:
+        send_text(df_updated, TWILIO_NUMBER, MY_PHONE_NUMBER)
 
 
 main()
