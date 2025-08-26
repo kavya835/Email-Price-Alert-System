@@ -95,7 +95,7 @@ def main():
     df = get_urls(PRODUCT_URL_CSV)
     df_updated = process_products(df)
     if SAVE_TO_CSV:
-        df_updated.to_csv(PRICES_CSV, index=False, mode="a") #mode for append
+        df_updated.to_csv(PRICES_CSV, index=False, mode="w")
     if SEND_MAIL:
         send_mail(df_updated, MAIL_USER, MAIL_PASS, MAIL_TO)
 
